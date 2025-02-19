@@ -47,7 +47,7 @@
 //     );
 //   }
 // }
-// gamelevel.dart
+
 import 'package:flutter/material.dart';
 import 'package:flutter_application_0/page/game_page.dart';
 
@@ -57,6 +57,16 @@ class GameLevel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // รายการระดับเกมที่ต้องการแสดง (6 รายการ)
+    final List<Map<String, int>> levelSettings = [
+      {'rows': 2, 'columns': 2}, //4
+      {'rows': 2, 'columns': 3}, //6
+      {'rows': 2, 'columns': 4}, //8
+      {'rows': 3, 'columns': 4}, //12
+      {'rows': 4, 'columns': 4}, //16
+      {'rows': 4, 'columns': 5}, //20
+    ];
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('เลือกระดับเกม'),
@@ -73,33 +83,47 @@ class GameLevel extends StatelessWidget {
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
-            // มีปุ่มทั้งหมด 8 ปุ่ม โดย crossAxisCount = 2 ทำให้ได้ 4 แถว
-            int rowCount = 4;
-            // คำนวณความสูงรวมของ mainAxisSpacing (10 พิกเซลระหว่างแถว)
-            double totalSpacingHeight = 10 * (rowCount - 1);
-            // availableHeight คือความสูงที่มีอยู่หลังจากหัก spacing และ padding แนวตั้ง
-            double availableHeight = constraints.maxHeight - totalSpacingHeight - 20;
-            // ความสูงของแต่ละปุ่ม
+            // กำหนดให้ Grid แสดงผลเป็น 2 คอลัมน์
+            const int crossAxisCount = 2;
+            final int totalItems = levelSettings.length; // จำนวนรายการ 6
+            final int rowCount = (totalItems / crossAxisCount).ceil(); // จำนวนแถว = 3
+
+            // กำหนด spacing ระหว่างปุ่ม
+            const double crossAxisSpacing = 10;
+            const double mainAxisSpacing = 10;
+
+            // คำนวณความสูงที่มีอยู่จริงหลังจากหัก spacing และ padding แนวตั้ง
+            double totalSpacingHeight = mainAxisSpacing * (rowCount - 1);
+            double availableHeight = constraints.maxHeight - totalSpacingHeight - 20; // หัก padding แนวตั้ง
             double itemHeight = availableHeight / rowCount;
-            // คำนวณความกว้างของแต่ละปุ่ม (หัก padding แนวนอนและ crossAxisSpacing)
-            double availableWidth = constraints.maxWidth - 20 - 10;
-            double itemWidth = availableWidth / 2;
-            // childAspectRatio = itemWidth / itemHeight
+
+            // คำนวณความกว้างของแต่ละปุ่ม
+            double totalCrossSpacing = crossAxisSpacing * (crossAxisCount - 1);
+            double availableWidth = constraints.maxWidth - 20 - totalCrossSpacing; // หัก padding แนวนอน
+            double itemWidth = availableWidth / crossAxisCount;
+
+            // childAspectRatio สำหรับ GridView
             double ratio = itemWidth / itemHeight;
 
             return GridView.builder(
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.all(10),
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
+                crossAxisCount: crossAxisCount,
                 childAspectRatio: ratio,
-                crossAxisSpacing: 10,
-                mainAxisSpacing: 10,
+                crossAxisSpacing: crossAxisSpacing,
+                mainAxisSpacing: mainAxisSpacing,
               ),
-              itemCount: 8,
+              itemCount: totalItems,
               itemBuilder: (context, index) {
-                final level = index + 2; // 2x2, 2x3, ..., 2x9
-                return _buildLevelButton(context, '2x$level', 2, level);
+                final level = levelSettings[index];
+                final label = '${level['rows']}x${level['columns']}';
+                return _buildLevelButton(
+                  context, 
+                  label, 
+                  level['rows']!, 
+                  level['columns']!
+                );
               },
             );
           },
@@ -124,7 +148,8 @@ class GameLevel extends StatelessWidget {
         );
       },
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.deepPurple, backgroundColor: Colors.white, // สีข้อความและไอคอน
+        foregroundColor: Colors.deepPurple,
+        backgroundColor: Colors.white,
         elevation: 8,
         shadowColor: Colors.black54,
         shape: RoundedRectangleBorder(

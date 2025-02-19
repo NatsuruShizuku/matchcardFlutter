@@ -28,37 +28,7 @@ class WordTile extends StatelessWidget {
         builder: (_, notifier, __) {
           bool animate = checkAnimationRun(notifier);
 
-          // return GestureDetector(
-          //   onTap: () {
-          //     if (!notifier.ignoreTaps &&
-          //         !notifier.answeredWords.contains(index) &&
-          //         !notifier.tappedWords.containsKey(index)) {
-          //       notifier.tileTapped(index: index, word: word);
-          //     }
-          //   },
-          // //   child: FlipAnimation(
-          // //     delay: notifier.reverseFlip ? 1500 : 0,
-          // //     reverse: notifier.reverseFlip,
-          // //     animationCompleted: (isForward) {
-          // //       notifier.onAnimationCompleted(isForward: isForward);
-          // //     },
-          // //     animate: animate,
-          // //     word: MatchedAnimation(
-          // //       numberOfWordsAnswered: notifier.answeredWords.length,
-          // //       animate: notifier.answeredWords.contains(index),
-          // //       child: Container(
-          // //           padding: const EdgeInsets.all(16),
-          // //           child: word.displayText
-          // //               ? FittedBox(
-          // //                   fit: BoxFit.scaleDown,
-          // //                   child: Transform(
-          // //                       alignment: Alignment.center,
-          // //                       transform: Matrix4.rotationY(pi),
-          // //                       child: Text(word.descrip)))
-          // //               : _buildImage(word.contents)
-          // //     ),
-          // //   ),
-          // // )
+ 
 return GestureDetector(
   onTap: () {
     if (!notifier.ignoreTaps &&

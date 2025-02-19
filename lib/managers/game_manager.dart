@@ -11,7 +11,8 @@ class GameManager extends ChangeNotifier {
       roundCompleted = false;
   List<int> answeredWords = [];
   bool hasImage;
-    GameManager({required this.hasImage}); // กำหนดค่าเริ่มต้น
+  final int totalTiles;
+    GameManager( {required this.hasImage,required this.totalTiles}); // กำหนดค่าเริ่มต้น
 
 
   // tileTapped({required int index, required Word word}) {
@@ -50,7 +51,7 @@ onAnimationCompleted({required bool isForward}) async {
 
       if (isMatch) {
         answeredWords.addAll(tappedWords.keys);
-        if (answeredWords.length == 6) {
+        if (answeredWords.length == totalTiles) {
           await AudioManager.playAudio('Round');
           roundCompleted = true;
         } else {
@@ -74,78 +75,6 @@ onAnimationCompleted({required bool isForward}) async {
   }
   notifyListeners();
 }
-
-
-  // onAnimationCompleted({required bool isForward}) async {
-  //   if (tappedWords.length == 2) {
-  //     if (isForward) {
-  //       if (tappedWords.entries.elementAt(0).value.matraID ==
-  //           tappedWords.entries.elementAt(1).value.matraID) {
-  //         answeredWords.addAll(tappedWords.keys);
-  //         if (answeredWords.length == 6) {
-  //           await AudioManager.playAudio('Round');
-  //           roundCompleted = true;
-  //         } else {
-  //           await AudioManager.playAudio('Correct');
-  //         }
-  //         tappedWords.clear();
-  //         canFlip = true;
-  //         ignoreTaps = false;
-  //       } else {
-  //         await AudioManager.playAudio('Incorrect');
-  //         reverseFlip = true;
-  //       }
-  //     } else {
-  //       reverseFlip = false;
-  //       tappedWords.clear();
-  //       ignoreTaps = false;
-  //     }
-  //   } else {
-  //     canFlip = false;
-  //     ignoreTaps = false;
-  //   }
-
-  //   notifyListeners();
-  // }
-  //old
-//   onAnimationCompleted({required bool isForward}) async {
-//   if (tappedWords.length == 2) {
-//     if (isForward) {
-//       bool isMatch;
-//       if (hasImage) {
-//         // โหมดจับคู่ภาพ: ตรวจสอบ matraID
-//         isMatch = tappedWords.entries.elementAt(0).value.matraID ==
-//             tappedWords.entries.elementAt(1).value.matraID;
-//       } else {
-//         // โหมดจับคู่คำศัพท์: ตรวจสอบ descrip
-//         isMatch = tappedWords.entries.elementAt(0).value.descrip ==
-//             tappedWords.entries.elementAt(1).value.descrip;
-//       }
-
-//       if (isMatch) {
-//         answeredWords.addAll(tappedWords.keys);
-//         if (answeredWords.length == 6) { // ตรวจสอบจำนวนคู่ที่จับคู่สำเร็จ
-//           await AudioManager.playAudio('Round');
-//           roundCompleted = true;
-//         } else {
-//           await AudioManager.playAudio('Correct');
-//         }
-//         tappedWords.clear();
-//         canFlip = true;
-//         ignoreTaps = false;
-//       } else {
-//         await AudioManager.playAudio('Incorrect');
-//         reverseFlip = true;
-//       }
-//     } else {
-//       reverseFlip = false;
-//       tappedWords.clear();
-//       ignoreTaps = false;
-//     }
-//   } else {
-//     canFlip = false;
-//     ignoreTaps = false;
-//   }
-//   notifyListeners();
-// }
 }
+
+

@@ -56,6 +56,18 @@ class _MatchedAnimationState extends State<MatchedAnimation>
         if (widget.numberOfWordsAnswered == 6) {
           _correctColor = Colors.amber;
         }
+        if (widget.numberOfWordsAnswered == 8) {
+          _correctColor = Colors.blueAccent;
+        }
+        if (widget.numberOfWordsAnswered == 12) {
+          _correctColor = Colors.white;
+        }
+        if (widget.numberOfWordsAnswered == 16) {
+          _correctColor = Colors.lightGreen;
+        }
+        if (widget.numberOfWordsAnswered == 20) {
+          _correctColor = Colors.purpleAccent;
+        }
       }
 
       _correctColorIsSet = true;

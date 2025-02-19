@@ -5,7 +5,6 @@ import 'package:flutter_application_0/animation/confetti_animation.dart';
 import 'package:flutter_application_0/components/replay_popup.dart';
 import 'package:flutter_application_0/components/word_tile.dart';
 import 'package:flutter_application_0/database/database_helper.dart';
-import 'package:flutter_application_0/main.dart';
 import 'package:flutter_application_0/managers/game_manager.dart';
 import 'package:flutter_application_0/models/word.dart';
 import 'package:provider/provider.dart';
@@ -35,7 +34,7 @@ class _GamePageState extends State<GamePage> {
   @override
   void initState() {
     super.initState();
-     _gameManager = GameManager(hasImage: widget.hasImage);
+     _gameManager = GameManager(hasImage: widget.hasImage,totalTiles: widget.rows * widget.columns,);
     _dbHelper = DatabaseHelper.instance;
     // 1. โหลดข้อมูลจากฐานข้อมูลก่อน
     _loadWordsFromDB().then((_) {
@@ -51,24 +50,6 @@ class _GamePageState extends State<GamePage> {
     });
   }
 
-  // _loadWordsFromDB() async {
-  //   try {
-  //     List<Map<String, dynamic>> maps = await _dbHelper.queryAllWords();
-  //     if (maps.isEmpty) {
-  //       ScaffoldMessenger.of(context).showSnackBar(
-  //         const SnackBar(content: Text('ไม่มีข้อมูลในฐานข้อมูล')),
-  //       );
-  //       return;
-  //     }
-  //     sourceWords = maps.map((map) => Word.fromMap(map)).toList();
-  //     setState(() {});
-  //   } catch (e) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(content: Text('เกิดข้อผิดพลาด: $e')),
-  //     );
-  //     // sourceWords = []; // กำหนดค่าเริ่มต้นหากโหลดไม่สำเร็จ
-  //   }
-  // }
   _loadWordsFromDB() async {
   try {
     List<Map<String, dynamic>> maps = await _dbHelper.queryAllWords();
@@ -94,71 +75,74 @@ class _GamePageState extends State<GamePage> {
 }
 
   // _setUp() {
-  //   if (sourceWords.isEmpty) {
-  //     print('ไม่มีข้อมูลในฐานข้อมูล');
-  //     return;
+  //   if (sourceWords.isEmpty) return;
+
+  //   final totalPairs = (widget.rows * widget.columns) ~/ 2;
+  //   sourceWords.shuffle();
+
+  //   if (sourceWords.length < totalPairs) {
+  //     throw Exception('ไม่พบคำศัพท์เพียงพอในฐานข้อมูล');
   //   }
 
-  //   sourceWords.shuffle();
-  //   for (int i = 0; i < 3; i++) {
-  //     _gridWords.add(sourceWords[i]);
-  //     _gridWords.add(Word(
-  //       id: sourceWords[i].id,
-  //       descrip: sourceWords[i].descrip,
-  //       contents: sourceWords[i].contents,
-  //       matraID: sourceWords[i].matraID,
+  //   for (int i = 0; i < totalPairs; i++) {
+  //     // _gridWords.add(sourceWords[i]);
+  //     final originalWord = sourceWords[i];
+  //     _gridWords.add(originalWord);
+
+  //     _gridWords.add(
+  //     Word(
+  //       id: originalWord.id,
+  //       descrip: originalWord.descrip,
+  //       contents: [],
+  //       matraID: originalWord.matraID,
   //       displayText: true,
-  //     ));
+  //     ),
+  //   );
   //   }
   //   _gridWords.shuffle();
+  // }
   _setUp() {
-    if (sourceWords.isEmpty) return;
+  if (sourceWords.isEmpty) return;
 
-    final totalPairs = (widget.rows * widget.columns) ~/ 2;
-    sourceWords.shuffle();
+  final totalPairs = (widget.rows * widget.columns) ~/ 2;
 
-    if (sourceWords.length < totalPairs) {
-      throw Exception('ไม่พบคำศัพท์เพียงพอในฐานข้อมูล');
-    }
-
-    for (int i = 0; i < totalPairs; i++) {
-      // _gridWords.add(sourceWords[i]);
-      final originalWord = sourceWords[i];
-      _gridWords.add(originalWord);
-      // if (widget.hasImage) {
-
-      // _gridWords.add(
-      //   Word(
-      //       id: sourceWords[i].id,
-      //       descrip: sourceWords[i].descrip,
-      //       contents: sourceWords[i].contents,
-      //       matraID: sourceWords[i].matraID,
-      //       displayText: true),
-      // );
-      // } else {
-      //   // โหมดคำศัพท์: เพิ่มคำศัพท์คู่
-      //   _gridWords.add(
-      //     Word(
-      //       id: sourceWords[i].id,
-      //       descrip: sourceWords[i].descrip,
-      //       contents: [], // ไม่ใช้รูปภาพ
-      //       matraID: sourceWords[i].matraID,
-      //       displayText: true,
-      //     ),
-      //   );
-      // }
-      _gridWords.add(
-      Word(
-        id: originalWord.id,
-        descrip: originalWord.descrip,
-        contents: [],
-        matraID: originalWord.matraID,
-        displayText: true,
-      ),
-    );
-    }
-    _gridWords.shuffle();
+  // จัดกลุ่มคำตาม matraID
+  Map<int, List<Word>> groups = {};
+  for (Word word in sourceWords) {
+    groups.putIfAbsent(word.matraID, () => []).add(word);
   }
+
+  // สร้างรายการคู่คำที่มี matraID เดียวกัน
+  List<List<Word>> validPairs = [];
+  groups.forEach((matraID, wordsList) {
+    if (wordsList.length >= 2) {
+      // สุ่มคำภายในกลุ่มนั้น ๆ
+      wordsList.shuffle();
+      // จำนวนคู่ที่สามารถจับได้ในกลุ่มนี้
+      int numPairs = wordsList.length ~/ 2;
+      for (int i = 0; i < numPairs; i++) {
+        validPairs.add([wordsList[2 * i], wordsList[2 * i + 1]]);
+      }
+    }
+  });
+
+  // ตรวจสอบว่ามีจำนวนคู่ที่เพียงพอหรือไม่
+  if (validPairs.length < totalPairs) {
+    throw Exception('ไม่พบคำศัพท์เพียงพอในฐานข้อมูลที่มี matraID เดียวกันสำหรับจับคู่');
+  }
+
+  // สุ่มเลือกคู่คำที่ต้องการให้ครบจำนวน
+  validPairs.shuffle();
+  List<List<Word>> selectedPairs = validPairs.take(totalPairs).toList();
+
+  // นำคู่คำที่เลือกมาใส่ใน _gridWords แล้วสลับตำแหน่งเพื่อให้ตำแหน่งของคู่คำแสดงผลแบบสุ่ม
+  _gridWords.clear();
+  for (List<Word> pair in selectedPairs) {
+    _gridWords.addAll(pair);
+  }
+  _gridWords.shuffle();
+}
+
 
   Widget _buildImage(List<int> bytes) {
     return Image.memory(
@@ -167,123 +151,67 @@ class _GamePageState extends State<GamePage> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   final size = MediaQuery.of(context).size;
-  //   final widthPadding = size.width * 0.10;
-  //   return FutureBuilder(
-  //     future: _futureCachedImages,
-  //     builder: (context, snapshot) {
-  //       if (_futureCachedImages == null) {
-  //         // ตรวจสอบว่า Future ถูกกำหนดค่าหรือไม่
-  //         return const LoadingPage();
-  //       }
-  //       if (snapshot.hasError) {
-  //         return const ErrorPage();
-  //       }
-  //       if (snapshot.hasData) {
-  //         return Selector<GameManager, bool>(
-  //           selector: (_, gameManager) => gameManager.roundCompleted,
-  //           builder: (_, roundCompleted, __) {
-  //             WidgetsBinding.instance.addPostFrameCallback(
-  //               (timeStamp) async {
-  //                 if (roundCompleted) {
-  //                   await showDialog(
-  //                       barrierColor: Colors.transparent,
-  //                       barrierDismissible: false,
-  //                       context: context,
-  //                       builder: (context) => const ReplayPopUp());
-  //                 }
-  //               },
-  //             );
+// @override
+// Widget build(BuildContext context) {
+//   return FutureBuilder(
+//     future: _futureCachedImages,
+//     builder: (context, snapshot) {
+//       if (snapshot.hasError) return const ErrorPage();
 
-  //             return Stack(
-  //               children: [
-  //                 Container(
-  //                   decoration: const BoxDecoration(
-  //                       image: DecorationImage(
-  //                           fit: BoxFit.fill,
-  //                           image: AssetImage('assets/images/Cloud.png'))),
-  //                 ),
-  //                 SafeArea(
-  //                   child: Center(
-  //                     child: GridView.builder(
-  //                         shrinkWrap: true,
-  //                         padding: EdgeInsets.only(
-  //                             left: widthPadding, right: widthPadding),
-  //                         itemCount: 6,
-  //                         gridDelegate:
-  //                             SliverGridDelegateWithFixedCrossAxisCount(
-  //                                 crossAxisCount: 3,
-  //                                 crossAxisSpacing: 10,
-  //                                 mainAxisSpacing: 10,
-  //                                 mainAxisExtent: size.height * 0.38),
-  //                         itemBuilder: (context, index) => WordTile(
-  //                               index: index,
-  //                               word: _gridWords[index],
-  //                             )),
-  //                   ),
-  //                 ),
-  //                 ConfettiAnimation(animate: roundCompleted)
-  //               ],
-  //             );
-  //           },
-  //         );
-  //       } else {
-  //         return const LoadingPage();
-  //       }
-  //     },
-  //   );
-  // }
+//       // ถ้าเป็นโหมดคำศัพท์ หรือโหลดภาพเสร็จแล้ว
+//       final isDataReady = !widget.hasImage || snapshot.connectionState == ConnectionState.done;
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   final size = MediaQuery.of(context).size;
-  //   return ChangeNotifierProvider(
-  //     create: (_) => _gameManager,
-  //   child:  Scaffold(
-  //     body: FutureBuilder(
-  //       future: _futureCachedImages,
-  //       builder: (context, snapshot) {
-  //         if (_futureCachedImages == null) {
-  //           return const LoadingPage(); // แสดง LoadingPage หาก Future ยังไม่ถูกกำหนดค่า
-  //         }
-  //         if (snapshot.hasError) return const ErrorPage();
-  //         // if (snapshot.connectionState != ConnectionState.done) {
-  //         if (!widget.hasImage || snapshot.connectionState == ConnectionState.done) {
-  //           // return const LoadingPage();
-  //           return _buildGameGrid();
-  //         }
-  //      return const LoadingPage();
-  //      },
-  //     ),
-  //   ),
-  //   );
-  // }
+//       if (isDataReady) {
+//         return _buildGameGrid();
+//       }
+
+//       return const LoadingPage();
+//     },
+//   );
+// }
 @override
 Widget build(BuildContext context) {
-  return FutureBuilder(
-    future: _futureCachedImages,
-    builder: (context, snapshot) {
-      if (snapshot.hasError) return const ErrorPage();
+  return ChangeNotifierProvider<GameManager>.value(
+    value: _gameManager,
+    child: FutureBuilder(
+      future: _futureCachedImages,
+      builder: (context, snapshot) {
+        if (snapshot.hasError) return const ErrorPage();
 
-      // ถ้าเป็นโหมดคำศัพท์ หรือโหลดภาพเสร็จแล้ว
-      final isDataReady = !widget.hasImage || snapshot.connectionState == ConnectionState.done;
+        // ถ้าเป็นโหมดคำศัพท์ หรือโหลดภาพเสร็จแล้ว
+        final isDataReady =
+            !widget.hasImage || snapshot.connectionState == ConnectionState.done;
 
-      if (isDataReady) {
-        return _buildGameGrid();
-      }
+        if (isDataReady) {
+          return Scaffold(
+            body: _buildGameGrid(),
+          );
+        }
 
-      return const LoadingPage();
-    },
+        return const LoadingPage();
+      },
+    ),
   );
 }
+
 
   Widget _buildGameGrid() {
     final size = MediaQuery.of(context).size;
     return Selector<GameManager, bool>(
       selector: (_, gameManager) => gameManager.roundCompleted,
       builder: (_, roundCompleted, __) {
+         WidgetsBinding.instance.addPostFrameCallback(
+                (timeStamp) async {
+                  if (roundCompleted) {
+                    await showDialog(
+                        barrierColor: Colors.transparent,
+                        barrierDismissible: false,
+                        context: context,
+                        builder: (context) => const ReplayPopUp());
+                  }
+                },
+              );
+
         return Stack(
           children: [
             Container(
@@ -323,43 +251,3 @@ Widget build(BuildContext context) {
     return 1;
   }
 }
-  //         return Selector<GameManager, bool>(
-  //           selector: (_, gameManager) => gameManager.roundCompleted,
-  //           builder: (_, roundCompleted, __) {
-  //             return Stack(
-  //               children: [
-  //                 Container(
-  //                   decoration: const BoxDecoration(
-  //                     image: DecorationImage(
-  //                       fit: BoxFit.fill,
-  //                       image: AssetImage('assets/images/Cloud.png'),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 SafeArea(
-  //                   child: Center(
-  //                     child: GridView.builder(
-  //                       shrinkWrap: true,
-  //                       itemCount: widget.rows * widget.columns,
-  //                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-  //                         crossAxisCount: widget.columns, // จำนวนคอลัมน์
-  //                         crossAxisSpacing: 10,
-  //                         mainAxisSpacing: 10,
-  //                         mainAxisExtent: size.height * 0.38,
-  //                       ),
-  //                       itemBuilder: (context, index) => WordTile(
-  //                         index: index,
-  //                         word: _gridWords[index],
-  //                       ),
-  //                     ),
-  //                   ),
-  //                 ),
-  //                 ConfettiAnimation(animate: roundCompleted)
-  //               ],
-  //             );
-  //           },
-  //         );
-  //       },
-  //     ),
-  //   );
-  // }
