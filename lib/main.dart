@@ -38,9 +38,9 @@ import 'package:flutter_application_0/theme/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SystemChrome.setPreferredOrientations(
-    [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
-  );
+  // SystemChrome.setPreferredOrientations(
+  //   [DeviceOrientation.landscapeLeft, DeviceOrientation.landscapeRight],
+  // );
   runApp(const MyApp());
 }
 

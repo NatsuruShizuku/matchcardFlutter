@@ -13,7 +13,7 @@ class ErrorPage extends StatelessWidget {
       color: Colors.deepPurple,
       child: Center(
         child: Text(
-          'Error :( \n Check your internet connection',
+          'มีข้อผิดพลาดเกิดขึ้น',
           textDirection: TextDirection.ltr,
           textAlign: TextAlign.center,
           style: textStyle,

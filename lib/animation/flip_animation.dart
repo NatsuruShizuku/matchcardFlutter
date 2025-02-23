@@ -41,8 +41,10 @@ class _FlipAnimationState extends State<FlipAnimation>
         }
       });
 
+    // _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
+    //     CurvedAnimation(parent: _controller, curve: Curves.bounceInOut));
     _animation = Tween<double>(begin: 0.0, end: 1.0).animate(
-        CurvedAnimation(parent: _controller, curve: Curves.bounceInOut));
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),);
   }
 
   // @override
@@ -62,20 +64,41 @@ class _FlipAnimationState extends State<FlipAnimation>
 
   //   super.didUpdateWidget(oldWidget);
   // }
-  @override
+    // @override
+  // void didUpdateWidget(covariant FlipAnimation oldWidget) {
+  //   if (widget.animate != oldWidget.animate || widget.reverse != oldWidget.reverse) {
+  //     Future.delayed(Duration(milliseconds: widget.delay), () {
+  //       if (mounted) {
+  //         if (widget.animate) {
+  //           if (widget.reverse) {
+  //             _controller.reverse();
+  //           } else {
+  //             _controller.forward();
+  //           }
+  //         }
+  //       }
+  //     });
+  //   }
+  //   super.didUpdateWidget(oldWidget);
+  // }
+@override
 void didUpdateWidget(covariant FlipAnimation oldWidget) {
-  Future.delayed(Duration(milliseconds: widget.delay), () {
-    if (mounted) {
-      if (widget.animate) {
+  if (widget.animate != oldWidget.animate || widget.reverse != oldWidget.reverse) {
+    Future.delayed(Duration(milliseconds: widget.delay), () {
+      if (mounted && widget.animate) {
+        // ตรวจสอบสถานะก่อนเริ่ม Animation
         if (widget.reverse) {
-          _controller.reverse();
+          if (_controller.status != AnimationStatus.dismissed) {
+            _controller.reverse();
+          }
         } else {
-          _controller.reset();
-          _controller.forward();
+          if (_controller.status != AnimationStatus.completed) {
+            _controller.forward();
+          }
         }
       }
-    }
-  });
+    });
+  }
   super.didUpdateWidget(oldWidget);
 }
 
@@ -90,21 +113,31 @@ void didUpdateWidget(covariant FlipAnimation oldWidget) {
     return AnimatedBuilder(
       animation: _controller,
       builder: (context, child) => Transform(
-          alignment: Alignment.center,
-          transform: Matrix4.identity()
-            ..rotateY(_animation.value * pi)
-            ..setEntry(3, 2, 0.005),
-          child: _controller.value >= 0.50
-              ? widget.word
-              : Container(
-                  decoration: BoxDecoration(
-                      color: Colors.deepPurple,
-                      borderRadius: BorderRadius.circular(8)),
-                  child: const Icon(
-                    Icons.question_mark,
-                    size: 50,
-                    color: Colors.white,
-                  ))),
+        alignment: Alignment.center,
+        transform: Matrix4.identity()
+          ..rotateY(_animation.value * pi)
+          ..setEntry(3, 2, 0.005),
+        child: _controller.value >= 0.50
+            ? widget.word
+            : Container(
+              decoration: BoxDecoration(
+                color: Colors.deepPurple.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(8),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  )
+                ],
+              ),
+              child: Icon(
+                Icons.help_outline,
+                size: 40,
+                color: Colors.white.withOpacity(0.8),
+              ),
+            ),
+      ),
     );
   }
 }

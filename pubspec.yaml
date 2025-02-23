@@ -75,7 +75,7 @@ flutter:
     - assets/db/
     - assets/images/
     - assets/sounds/
-    - assets/dbbin.db
+    - assets/dbbin1.db
     - assets/google_fonts/
 
   # An image asset can refer to one or more resolution-specific "variants", see

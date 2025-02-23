@@ -61,7 +61,7 @@ class GameLevel extends StatelessWidget {
     final List<Map<String, int>> levelSettings = [
       {'rows': 2, 'columns': 2}, //4
       {'rows': 2, 'columns': 3}, //6
-      {'rows': 2, 'columns': 4}, //8
+      {'rows': 5, 'columns': 2}, //8
       {'rows': 3, 'columns': 4}, //12
       {'rows': 4, 'columns': 4}, //16
       {'rows': 4, 'columns': 5}, //20

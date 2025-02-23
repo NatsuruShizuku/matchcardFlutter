@@ -9,7 +9,7 @@ class SelectGame extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('เลือกโหมดเกม')),
+      appBar: AppBar(title: const Text('เกมจับคู่มาตราตัวสะกด')),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -17,15 +17,8 @@ class SelectGame extends StatelessWidget {
             // ปุ่มโหมดจับคู่ภาพ (มีรูปภาพและคำศัพท์)
             _buildGameModeButton(
               context,
-              'จับคู่ภาพ',
+              'เริ่มเกม',
               true, // ส่งค่า hasImage = true
-            ),
-            const SizedBox(height: 20),
-            // ปุ่มโหมดจับคู่คำศัพท์ (มีเพียงข้อความ)
-            _buildGameModeButton(
-              context,
-              'จับคู่คำศัพท์',
-              false, // ส่งค่า hasImage = false
             ),
           ],
         ),
